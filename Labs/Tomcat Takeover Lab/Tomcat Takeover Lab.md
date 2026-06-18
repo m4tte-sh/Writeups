@@ -7,18 +7,18 @@ Q1 Given the suspicious activity detected on the web server, the PCAP file revea
 
 Para iniciar el análisis de la captura de paquetes en Wireshark, se examinaron los flujos globales mediante la opción del menú `Statistics ➝ Endpoints` (pestaña IPv4/TCP), con el objetivo de identificar qué dirección IP presentaba el mayor volumen de paquetes y conexiones establecidas.
 
-![[Captura de pantalla 2026-06-17 172030 1.png]]
+![Endpoints](img/Captura%20de%20pantalla%202026-06-17%20172030%201.png)
 
 Se detectó la actividad de 7 direcciones IP distintas, de las cuales se destacó de manera anómala el comportamiento de 14.0.0.120. Para aislar su actividad, se aplicó el siguiente filtro de visualización: `ip.src == 14.0.0.120`.
 
-![[Captura de pantalla 2026-06-17 172103.png]]
+![Filtro IP de origen con tráfico SYN](img/Captura%20de%20pantalla%202026-06-17%20172103.png)
 
 Tras aplicar el filtro, se constató que esta IP envió una ráfaga masiva de paquetes con el flag SYN activo hacia múltiples puertos de una máquina de la red local. Este patrón de tráfico confirma una fase activa de enumeración y escaneo de puertos.
 
 Q2. Based on the identified IP address associated with the attacker, can you identify the country from which the attacker's activities originated?
 
 Con el fin de determinar el origen geográfico de la actividad maliciosa, se procedió a consultar la dirección IP identificada (14.0.0.120) en un servicio público de inteligencia de amenazas y geolocalización IP.
-![[Captura de pantalla 2026-06-17 172226.png]]
+![Geolocalización de IP Atacante](img/Captura%20de%20pantalla%202026-06-17%20172226.png)
 
 Origen de la Ip: Guangzhou, China.
 
@@ -26,7 +26,7 @@ Q3. From the PCAP file, multiple open ports were detected as a result of the att
 
 Para determinar cuál de los puertos escaneados correspondía al servicio web de administración, se aisló el tráfico de la capa de aplicación filtrando por el protocolo HTTP en co-relación con la IP del atacante mediante el siguiente filtro:`http and ip.src == 14.0.0120`.
 
-![[Pasted image 20260618011149.png]]
+![Identificación de puerto mediante tráfico HTTP](img/Pasted%20image%2020260618011149.png)
 
 Al inspeccionar el Panel de Detalles del Paquete (Packet Details Pane), se analizó la capa de transporte (Transmission Control Protocol), la cual reveló que las peticiones web se dirigían específicamente hacia el puerto de destino 8080 (puerto por defecto del servicio Apache Tomcat).
 
@@ -34,7 +34,7 @@ Q4. Following the discovery of open ports on our server, it appears that the att
 
 Manteniendo el análisis sobre el mismo flujo de paquetes HTTP, se procedió a desglosar el protocolo en la capa de aplicación buscando firmas o huellas digitales (fingerprinting) en las solicitudes del atacante.
 
-![[Pasted image 20260618012221.png]]
+![Identificación de firma Gobuster en User-Agent](img/Pasted%20image%2020260618012221.png)
 
 Dentro de la estructura de las cabeceras HTTP, se inspeccionó el campo User-Agent. Este parámetro expuso la firma explícita de la herramienta automatizada de fuzzing utilizada por el atacante para el descubrimiento de directorios: gobuster/3.6.
 
@@ -44,7 +44,7 @@ Tras verificar el uso de Gobuster, se analizó cuáles de las rutas web solicita
 
 Filtro: `http.response.code != 404 && ip.dst == 14.0.0.120`
 
-![[Pasted image 20260618013445.png]]
+![Filtro de respuestas HTTP exitosas](img/Pasted%20image%2020260618013445.png)
 
 El análisis demostró que mientras la herramienta fallaba en rutas genéricas como /admin, las solicitudes dirigidas al directorio /manager rompieron el patrón de errores devolviendo un desafío de autenticación activa. Esto confirmó que dicho directorio era el punto de entrada real expuesto en el servidor.
 
@@ -54,6 +54,6 @@ Sabiendo que el panel /manager de Tomcat emplea Autenticación Básica sobre HTT
 
 Filtro: `http.request.line contains "Authorization"`
 
-![[Pasted image 20260618021705.png]]
+![Intercepción de credenciales decodificadas en Base64](img/Pasted%20image%2020260618021705.png)
 
 Al examinar cronológicamente los resultados en el Panel de Detalles del Paquete (específicamente en el paquete descriptivo 20571), se observó la directiva Authorization: Basic. Wireshark decodificó automáticamente el token en Base64, dejando en evidencia las credenciales válidas comprometidas que otorgaron acceso al atacante: admin:tomcat.
