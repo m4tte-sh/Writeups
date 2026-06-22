@@ -11,13 +11,14 @@ Q1. Which wallet is used for asking the seed phrase?
 
 Dentro de los archivos, una carpeta contiene el nombre de la wallet. El kit de phishing está diseñado específicamente para apuntar a usuarios de MetaMask, simulando la interfaz de dicha extensión para engañar a las víctimas.
 
-![[Pasted image 20260622164956.png]]
+![Q1-Wallet](img/Pasted%20image%2020260622164956.png)
 
 Q2. What is the file name that has the code for the phishing kit?
 
 El código principal encargado del procesamiento de credenciales, persistencia local y la lógica de exfiltración se encuentra en el archivo backend principal.
-![[Pasted image 20260622165314.png]]
-![[Pasted image 20260622165419.png]]
+
+![Q2-Code1](img/Pasted%20image%2020260622165314.png)
+![Q2-Code2](img/Pasted%20image%2020260622165419.png)
 
 Q3. In which language was the kit written?
 
@@ -28,13 +29,13 @@ Q4. What service does the kit use to retrieve the victim's machine information?
 SypexGeo.
 El kit utiliza el servicio externo de Sypex Geo (sypexgeo.net).
 Este servicio en particular se especializa en geolocalización por IP. En este script, el atacante lo usa para averiguar en qué parte del mundo está la víctima (obteniendo datos como el país y la ciudad) a partir de su dirección IP mediante la variable global `$_SERVER['REMOTE_ADDR']`. Adicionalmente, recolecta la firma del navegador a través de `$_SERVER['HTTP_USER_AGENT']`.
-![[Pasted image 20260622170557.png]]
+![Q4-SypexGeo](img/Pasted%20image%2020260622170557.png)
 
 Q5. How many seed phrases were already collected?
 
 Al ver las últimas líneas del código, el script guarda la frase robada en un archivo de texto llamado log.txt dentro de una carpeta oculta (/log/) en el propio servidor web como mecanismo de respaldo. Tras inspeccionar el archivo, se confirma que contiene 3 frases robadas.
-![[Pasted image 20260622171106.png]]
-![[Pasted image 20260622171254.png]]
+![Q5-Log1](img/Pasted%20image%2020260622171106.png)
+![Q5-Log2](img/Pasted%20image%2020260622171254.png)
 
 Q6. Could you please provide the seed phrase associated with the most recent phishing incident?
 
@@ -50,16 +51,17 @@ Q8.What is the token for accessing the channel?
 Dentro del script, está declarado explícitamente el token de acceso del bot de Telegram:
 `5457463144:AAG8t4k7e2ew3tTi0IBShcWbSia0Irvxm10`.
 
-![[Pasted image 20260622172944.png]]
+![Q8-Token](img/Pasted%20image%2020260622172944.png)
 
 Q9. What is the Chat ID for the phisher's channel?
 
 Dentro del script, está declarado el identificador numérico del chat receptor:
 `5442785564`.
 
-![[Pasted image 20260622172532.png]]
+![Q9-ChatID](img/Pasted%20image%2020260622172532.png)
 
 Q10. What are the allies of the phish kit developer?
 
 Observamos en los comentarios integrados en el encabezado del código la firma y el alias del creador del script: `j1j1b1s@m3r0`.
-![[Pasted image 20260622172753.png]]
+
+![Q10-Developer](img/Pasted%20image%2020260622172753.png)
