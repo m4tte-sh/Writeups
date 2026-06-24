@@ -8,14 +8,14 @@ Investigate IcedID malware using VirusTotal and threat intelligence platforms to
 El hash que nos proporciona el lab es el siguiente: `191eda0c539d284b29efe556abb05cd75a9077a0`
 
 Primeramente, analizaremos el hash en la página **VirusTotal**.
-![[Pasted image 20260623173043.png]]
+![Análisis Inicial en VirusTotal](img/Pasted%20image%2020260623173043.png)
 
 
 
 Q1. What is the name of the file associated with the given hash?
 
 El análisis comienza con la ingesta del hash SHA-1 en la plataforma VirusTotal para examinar sus propiedades estáticas y metadatos. Al inspeccionar la sección de Names dentro de la pestaña Details, se identifican los nombres con los que el archivo fue reportado en la telemetría global.
-![[Pasted image 20260623173217.png]]
+![Nombres del Archivo en VirusTotal](img/Pasted%20image%2020260623173217.png)
 
 En nuestro caso nos interesa el último: `document-1982481273.xlsm`
 
@@ -25,7 +25,7 @@ Q2. Can you identify the filename of the **GIF** file that was deployed?
 
 El siguiente paso consiste en determinar si la ejecución del vector inicial realiza la descarga o creación de componentes adicionales en el sistema comprometido (fase de Installation o Actions on Objectives). Para ello, nos dirigimos a la pestaña Relations y examinamos el apartado de Dropped Files (archivos depositados en disco).
 
-![[Pasted image 20260623173823.png]]
+![Apartado Dropped Files](img/Pasted%20image%2020260623173823.png)
 En esta sección se detecta la creación del siguiente archivo:
 `3003.gif`
 
@@ -36,14 +36,14 @@ Para comprender el alcance de la infraestructura de red del atacante, se analiza
 El análisis de las conexiones revela que el malware interactúa exactamente con:
 5 dominios independientes
 
-![[Pasted image 20260623174705.png]]
+![Sección Contacted URLs](img/Pasted%20image%2020260623174705.png)
 
 Q4. From the domains mentioned in **Q3**, a DNS registrar was predominantly used by the threat actor to host their harmful content, enabling the malware's functionality. Can you specify the Registrar INC?
 
 Una vez aislada la infraestructura maliciosa, el siguiente paso es auditar la propiedad y gestión de los dominios utilizados por el adversario. Cruzando los indicadores de red con la tabla de Contacted Domains de VirusTotal, se procede a examinar la información de Whois de los servidores activos.
 
 Al filtrar y descartar los dominios legítimos de infraestructura en la nube (como Microsoft o Amazon), el análisis determina que el registrador comercial (DNS Registrar) utilizado predominantemente por el atacante para alojar su contenido dañino es: **NameCheap**.
-![[Pasted image 20260623180515.png]]
+![Información Whois del Registrador](img/Pasted%20image%2020260623180515.png)
 
 Q5. Could you specify the threat actor linked to the sample provided?
 
@@ -51,16 +51,16 @@ Con los Indicadores de Compromiso (IoCs) recopilados (hash, nombres de archivo, 
 
 La correlación de datos vincula de forma directa esta actividad maliciosa con el siguiente grupo de amenazas:
 TA551 o conocido como GOLD CABIN
-![[Pasted image 20260623183631.png]]
+![Atribución del Threat Actor TA551](img/Pasted%20image%2020260623183631.png)
 Este grupo es conocido por utilizar IcedID en sus campañas maliciosas, proporcionando información sobre el origen del malware y los objetivos típicos. El perfil de Malpedia confirma esta atribución, mostrando descripciones detalladas de las tácticas, técnicas y procedimientos de GOLD CABIN.
-![[Pasted image 20260623183819.png]]
+![Perfil de Gold Cabin en Malpedia](img/Pasted%20image%2020260623183819.png)
 
 Q6. In the **Execution** phase, what function does the malware employ to fetch extra payloads onto the system?
 
 Finalmente, para validar el mecanismo técnico exacto que emplea el malware durante su fase de Execution para traer las cargas secundarias al sistema, se analiza la muestra mediante análisis dinámico en una Sandbox (en este caso, Recorded Future Triage), monitoreando las llamadas al sistema en tiempo real.
 
 El monitoreo de la ejecución revela que la macro del documento abusa directamente de la interfaz de programación de aplicaciones de Windows (Windows API) invocando la función: `URLDownloadToFileA`
-![[Pasted image 20260623184759.png]]
+![Monitoreo de la API URLDownloadToFileA en Triage](img/Pasted%20image%2020260623184759.png)
 
 Esta función permite la descarga de archivos desde Internet, lo que permite que el malware obtenga y ejecute más componentes maliciosos, ampliando así su funcionalidad y persistencia dentro del entorno infectado. Las capturas de pantalla de las herramientas de monitoreo de API confirman el uso de `URLDownloadToFileA`Y destacar las llamadas relacionadas a dominios sospechosos.
 
